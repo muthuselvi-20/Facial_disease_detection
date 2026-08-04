@@ -1,16 +1,19 @@
 import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
+from tensorflow.keras.applications.efficientnet import preprocess_input
+
+
 
 model = load_model(r"D:\Projects\Facial problem detection\Model\facial_model.keras")
 
 class_names = [
     "Acne",
-    "Eczema",
+    "Eczemaa",
     "Hyperpigmentation",
     "Normal",
     "Rosacea",
-    "Wrinkles"
+    "Wrinkle"
 ]
 
 product_recommendations = {
@@ -39,7 +42,7 @@ product_recommendations = {
         "benefit": "Reduces redness and inflammation while being gentle on sensitive skin."
     },
 
-    "Wrinkles": {
+    "Wrinkle": {
         "product": "Retinol Serum (0.3–0.5%)",
         "benefit": "Boosts collagen production and reduces fine lines over time."
     }
@@ -62,8 +65,7 @@ def preprocess_image(image):
     # Convert back to NumPy
     img = np.array(img).astype("float32")
 
-    # Normalize (Remove this line if your model already contains Rescaling layer)
-    img = img / 255.0
+    img = preprocess_input(img)
 
     # Add batch dimension
     img = np.expand_dims(img, axis=0)

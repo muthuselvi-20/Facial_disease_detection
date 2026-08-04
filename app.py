@@ -1,26 +1,56 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
-import tensorflow as tf
 
 from predictor import predict
 from validate import validate_image
 
+st.set_page_config(
+    page_title="Facial Disease Detection",
+    page_icon="🩺"
+)
+
 st.title("🩺 Facial Disease Detection")
+st.write("Choose how you want to provide the image.")
 
-st.write("Capture your face using the webcam.")
+# ==========================
+# Choose Input
+# ==========================
+option = st.radio(
+    "Choose Input",
+    ["Upload Image", "Capture Image"]
+)
 
-image = st.camera_input("Capture Image")
+image = None
 
+if option == "Capture Image":
+    image = st.camera_input("Capture Image")
+
+elif option == "Upload Image":
+    image = st.file_uploader(
+        "Upload Image",
+        type=["jpg", "jpeg", "png"]
+    )
+
+# ==========================
+# Prediction
+# ==========================
 if image is not None:
 
-    # Convert UploadedFile → PIL
+    # Convert UploadedFile to PIL Image
     pil_image = Image.open(image)
 
-    # Convert PIL → NumPy
+    # Display image
+    st.image(
+        pil_image,
+        caption="Input Image",
+        use_container_width=True
+    )
+
+    # Convert PIL Image to NumPy
     img = np.array(pil_image)
 
-    # Validate
+    # Validate image
     valid, message = validate_image(img)
 
     if valid:
@@ -29,17 +59,16 @@ if image is not None:
 
         disease, confidence, product, benefit = predict(img)
 
-        st.success(f"Prediction : {disease}")
+        st.success(f"Prediction: {disease}")
+        st.info(f"Confidence: {confidence:.2f}%")
 
-        st.info(f"Confidence : {confidence:.2f}%")
+        st.subheader("Recommended Product")
+        st.success(product)
 
-        st.write("Product Recommendation: ")
-        st.info(product)
-        st.write("Benefits: ")
+        st.subheader("Benefits")
         st.info(benefit)
 
     else:
 
         st.error(message)
-
         st.stop()
